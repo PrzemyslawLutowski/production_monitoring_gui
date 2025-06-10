@@ -1,0 +1,43 @@
+{
+  "line_name": "Linia A",
+  "view_status": "LineViewStatusA",
+  "plan_tt_value": "PlanTtValueA",
+  "plan_value": "PlanValueA",
+  "balance_tt_value": "BalanceTtValueA",
+  "balance_value": "BalanceValueA",
+  "scan_values": "ScanResultA",
+  "hvt_values": "HvtResultA",
+  "tv_tracer_values": "TvTracerResultA",
+  "pac_values": "PacResultA",
+  "empty0": "TvTracerTtResultA",
+  "empty1": "TvTracerResultA",
+  "empty2": "PacTtResultA",
+  "assembly_status": "AssemblyStatusA",
+  "inspection_status_in": "InspectionStatusA",
+  "inspection_status_out": "InspectionStatusA",
+  "packing_status": "PackingStatusA",
+  "SCAN-IN": "ScanInStatusA",
+  "HV-T": "HvtStatusA",
+  "DTV": "DtvStatusA",
+  "HDMI": "HdmiStatusA",
+  "AV": "AvStatusA",
+  "PANEL": "PanelStatusA",
+  "WHITE-BAL.": "WhiteBalanceStatusA",
+  "INIT": "InitStatusA",
+  "VISUAL": "VisualStatusA",
+  "TV-TRACER": "TvTracerStatusA",
+  "assembly_stops_no": "NumberOfStopsAssemblyA",
+  "db_config": {
+    "dbname": "dbname",
+    "user": "user",
+    "password": "password",
+    "host": "host",
+    "port": "5432"
+},
+  "db_table_config": {
+    "table_name": "variables_variablesmodel",
+    "variable_name": "variable_name",
+    "variable_value": "variable_value",
+    "cycle_time": "cycle_time"
+  }
+}
