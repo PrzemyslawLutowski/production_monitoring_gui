@@ -56,7 +56,7 @@ class ProductionLineMonitoring(QWidget):
         return jason_file_df
 
     def create_db_engine(self):
-        print("tutaj")
+
         try:
 
             DB_CONFIG = {

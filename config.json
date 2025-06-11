@@ -33,11 +33,5 @@
     "password": "password",
     "host": "host",
     "port": "5432"
-},
-  "db_table_config": {
-    "table_name": "variables_variablesmodel",
-    "variable_name": "variable_name",
-    "variable_value": "variable_value",
-    "cycle_time": "cycle_time"
-  }
+}
 }
