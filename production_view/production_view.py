@@ -1,13 +1,13 @@
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QFrame, QHBoxLayout
+    QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel
 )
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import Qt
-from sqlalchemy import create_engine, text, select
+from sqlalchemy import create_engine, text
 from datetime import datetime
 from create_widget import (create_section_widget, create_label_widget, create_time_widget, create_plan_value_widget,
-                           create_balance_value_widget, create_status_widget)
+                           create_balance_value_widget)
 import json
 import sys
 
@@ -26,7 +26,6 @@ class ProductionLineMonitoring(QWidget):
         self.status_blink_timer.timeout.connect(self.status_blink_red)
         self.line_blink_state = False
         self.setWindowTitle("Production Monitor")
-        self.setGeometry(100, 100, 800, 400)  # Rozmiar okna
         self.red = "background-color: red; color: white; font-weight: bold; padding: 5px; border-radius: 5px;"
         self.light_red = "background-color: #ff6666; color: black; font-weight: bold; padding: 5px; border-radius: 5px;"
         self.green = "background-color: green; color: white; font-weight: bold; padding: 5px; border-radius: 5px;"
@@ -70,25 +69,22 @@ class ProductionLineMonitoring(QWidget):
             db_url = f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
             self.engine = create_engine(db_url)
 
-
         except KeyError:
             self.engine = False
 
     def init_UI(self):
-        self.config = self.open_config_file("config.json")
+        self.config = self.open_config_file("../config.json")
 
         if self.config:
-            initial_one_characters = "&&&&&&&"
-            initial_two_characters = f"&&&&&&& \n &&&&&&&"
+            initial_one_characters = "&&&&"
 
-            plan_base_font_size = 30
-            result_base_font_size = 40
-            current_base_font_size = 40
-            position_base_font_size = 10
+            plan_base_font_size = 20
+            result_base_font_size = 30
+            current_base_font_size = 30
+            position_base_font_size = 7
 
             main_layout = QVBoxLayout()
 
-            # Nagłówek
             top_grid = QGridLayout()
             self.header_label = QLabel()
             pixmap = QPixmap("Logo.png")
@@ -120,26 +116,24 @@ class ProductionLineMonitoring(QWidget):
             top_grid.addWidget(getattr(self, list(self.config.keys())[5]), 1, 3)
             main_layout.addLayout(top_grid)
 
-            # Sekcja trzech głównych kategorii: Assembly, Inspection, Packing
             category_grid = QGridLayout()
 
-            setattr(self, list(self.config.keys())[6],
-                    create_section_widget(initial_two_characters, baseFontSize=current_base_font_size))
-            setattr(self, list(self.config.keys())[7],
-                    create_section_widget(initial_two_characters, baseFontSize=current_base_font_size))
-            setattr(self, list(self.config.keys())[8],
-                    create_section_widget(initial_two_characters, baseFontSize=current_base_font_size))
-            setattr(self, list(self.config.keys())[9],
-                    create_section_widget(initial_two_characters, baseFontSize=current_base_font_size))
+            setattr(self, list(self.config.keys())[13],
+                    create_section_widget("assembly", baseFontSize=current_base_font_size))
+            setattr(self, list(self.config.keys())[14],
+                    create_section_widget("inspection", baseFontSize=current_base_font_size))
+            setattr(self, list(self.config.keys())[15],
+                    create_section_widget("inspection", baseFontSize=current_base_font_size))
+            setattr(self, list(self.config.keys())[16],
+                    create_section_widget("packing", baseFontSize=current_base_font_size))
 
-            category_grid.addWidget(getattr(self, list(self.config.keys())[6]), 0, 0)
-            category_grid.addWidget(getattr(self, list(self.config.keys())[7]), 0, 1)
-            category_grid.addWidget(getattr(self, list(self.config.keys())[8]), 0, 2)
-            category_grid.addWidget(getattr(self, list(self.config.keys())[9]), 0, 3)
+            category_grid.addWidget(getattr(self, list(self.config.keys())[13]), 0, 0)
+            category_grid.addWidget(getattr(self, list(self.config.keys())[14]), 0, 1)
+            category_grid.addWidget(getattr(self, list(self.config.keys())[15]), 0, 2)
+            category_grid.addWidget(getattr(self, list(self.config.keys())[16]), 0, 3)
 
             main_layout.addLayout(category_grid)
 
-            # Dolna sekcja etykiet
             label_grid = QGridLayout()
             labels = [[], []]
 
@@ -165,7 +159,7 @@ class ProductionLineMonitoring(QWidget):
             self.db_data_update_timer.start(5000)
 
     def data_update(self):
-        self.create_db_engine()
+        # self.create_db_engine()
 
         if self.engine:
 
@@ -187,12 +181,13 @@ class ProductionLineMonitoring(QWidget):
 
                 variables_tuple = variables_tuple + (self.config[list(self.config.keys())[i]], )
 
-            query = text("SELECT variable_name, cycle_time, variable_value "
+            query = text("SELECT variable_name, true_value_cycle_time, current_variable_value "
                          "FROM variables_variablesmodel WHERE variable_name IN :variables")
 
             with self.engine.connect() as connect:
                 values = connect.execute(query, {
                     "variables": variables_tuple}).fetchall()
+
 
             for i in range(1, 28):
 
@@ -225,7 +220,7 @@ class ProductionLineMonitoring(QWidget):
             values = self.variables_values[(list(self.variables_values.keys())[i])]
 
             if i % 2 > 0:
-                getattr(self, list(self.variables_values.keys())[i]).setText(f"{values[0]}s")
+                getattr(self, list(self.variables_values.keys())[i]).setText(f"{values[1]}s")
 
             else:
                 getattr(self, list(self.variables_values.keys())[i]).setText(f"{values[1]}szt")
@@ -249,17 +244,17 @@ class ProductionLineMonitoring(QWidget):
         tv_tracer_values = self.variables_values[(list(self.variables_values.keys())[7])]
         pac_values = self.variables_values[(list(self.variables_values.keys())[8])]
 
-        getattr(self, list(self.variables_values.keys())[5]).setText(f"{scan_in_values[1]}szt \n {scan_in_values[0]}s")
-        getattr(self, list(self.variables_values.keys())[6]).setText(f"{hvt_values[1]}szt \n {hvt_values[0]}s")
-        getattr(self, list(self.variables_values.keys())[7]).setText(f"{tv_tracer_values[1]}szt \n {tv_tracer_values[0]}s")
-        getattr(self, list(self.variables_values.keys())[8]).setText(f"{pac_values[1]}szt \n {pac_values[0]}s")
+        getattr(self, list(self.config.keys())[13]).setText(f"{scan_in_values[1]}szt \n {scan_in_values[0]}s")
+        getattr(self, list(self.config.keys())[14]).setText(f"{hvt_values[1]}szt \n {hvt_values[0]}s")
+        getattr(self, list(self.config.keys())[15]).setText(f"{tv_tracer_values[1]}szt \n {tv_tracer_values[0]}s")
+        getattr(self, list(self.config.keys())[16]).setText(f"{pac_values[1]}szt \n {pac_values[0]}s")
 
         self.status_blink_timer.start(750)
 
     def status_blink_red(self):
-        j = 5
+        j = 13
         for i in range(12, 16):
-            line_widget = getattr(self, list(self.variables_values.keys())[j])
+            line_widget = getattr(self, list(self.config.keys())[j])
             values = self.variables_values[(list(self.variables_values.keys())[i])][1]
 
             if values == "1":
@@ -318,5 +313,6 @@ class ProductionLineMonitoring(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = ProductionLineMonitoring()
-    window.show()
+    # window.show()
+    window.showMaximized()
     sys.exit(app.exec())
